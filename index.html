@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>BPM Counter</title>
+    <style>
+      * {
+        text-align: center;
+        user-select: none;
+      }
+
+      body {
+        margin: 0px;
+        overflow: hidden;
+      }
+
+      .bpm {
+        color: rgb(49, 49, 49);
+        font-size: 14vw;
+        height: 40vh;
+        line-height: 40vh;
+        font-family: Arial, Helvetica, sans-serif;
+        background-image: radial-gradient(#FFFFFF, rgb(221, 220, 204));
+      }
+
+      
+      
+      .button {
+        display: block;
+        width: 100%;
+        font-family: verdana;
+        font-size: 3vw;
+        letter-spacing: 0.6vw;
+        cursor: pointer;
+        color: white;
+        border: none;
+      }
+
+      button:focus { 
+        outline: none; 
+      }
+
+      .tapTempo {
+        background: rgb(47, 47, 47);
+        height: 40vh;
+        line-height: 40vh;
+        transition: background 0.2s;
+      }
+
+      .tapTempo:active {
+        background: rgb(41, 41, 41);
+      }
+
+      .reset {
+        background: rgb(220, 70, 66);
+        height: 20vh;
+        line-height: 20vh;
+        box-shadow: 7px 7px 50px rgb(210, 60, 56) inset;
+      }
+
+      .reset:active {
+        background: rgb(187, 58, 54);
+      }
+
+    </style>
+  </head>
+
+  <body>
+
+    <div class="bpm">-</div>
+    <button class="button tapTempo" onclick="beatsPerMinute.show()">TAP TEMPO</button>
+    <button class="button reset" onclick="beatsPerMinute.reset()">RESET</button>
+
+    <script>
+
+      // BPM Counter
+
+      let prevTime = 0;
+      let countClicks = 0;
+      let currentTime = 0;
+      let bpm = 0;
+      let timeDifference = 0;
+      let bpmTotal = 0;
+      let bpmFinal = 0;
+
+      var clickinterval;
+      var altval;
+
+      var playstopped=1;
+      var gathi=4;
+      var stop=1;
+      var clickvolume=3;
+      var delay=40;
+
+      var pageAudioContextclick = new AudioContext();
+      var pagegainNodeclick = pageAudioContextclick.createGain();
+
+      var clickbuff;
+        function loadbuff(){
+            var getSound1 = new XMLHttpRequest();
+            getSound1.open("get","click2.mp3", true);
+            getSound1.responseType = "arraybuffer";
+
+            getSound1.onload = function() {
+                
+                pageAudioContextclick.decodeAudioData(this.response, function(buffer) {
+                    clickbuff=buffer;
+                });
+                };
+            getSound1.send();
+        }
+
+        loadbuff();
+
+      function getABufferClick(){
+
+        var newsrcbufferclick = pageAudioContextclick.createBufferSource();
+        newsrcbufferclick.buffer = clickbuff; 
+        newsrcbufferclick.connect(pagegainNodeclick);
+        pagegainNodeclick.gain.value=clickvolume;
+        pagegainNodeclick.connect(pageAudioContextclick.destination); 
+        
+        return newsrcbufferclick;
+      }
+
+function stopplay(){
+    
+    playstopped=1;
+    stop=1;
+}
+
+function playparallel(){
+
+
+    if(playstopped==0)
+        return;
+    else
+        playstopped=0;
+    //enable to play again
+    stop=0;
+
+    var onebpm=1000/(bpmFinal/60);
+     //onedivision=onebpm/gathi;
+
+    
+
+    var count=0;
+    
+    var firsttime=1;
+
+    function playloop(){
+            if(stop==1)
+            {
+                playstopped = 1;
+                return;
+            }
+        
+
+            var srcbufferclick = getABufferClick();
+            var gapbpm = 0;
+        
+            if(firsttime==1){
+                firsttime=0;
+                gapbpm = onebpm*delay/100;
+            }
+            else{
+                setTimeout(function(){
+                    srcbufferclick.start(0);
+                },0)
+            }
+            
+            
+            setTimeout(function(){
+                count++;
+                playloop();
+                
+            },onebpm - gapbpm)
+        
+        }
+
+        playloop();
+        
+}
+
+      function playnow(bpmvalue){
+        if(clickinterval!=undefined){
+            clearInterval(clickinterval);
+        }
+
+        clickinterval = setInterval(function() {
+            let result = document.querySelector('div');
+            if(altval!="a"){
+                altval="a";
+            }
+            else{
+                altval="b";
+            }
+            result.innerHTML = bpmFinal.toFixed(0)+'-'+altval;            
+        //play a sound
+        }, Math.round(60000 / bpmvalue));
+      }
+
+      var lasttaps=[];
+      let beatsPerMinute = {
+        show: function() {
+          if (prevTime === 0 || (Date.now()-prevTime) > 2200) {
+            this.reset();
+            stopplay();
+            prevTime = Date.now();
+          } else {
+            
+            currentTime = Date.now();
+            timeDifference = currentTime - prevTime;
+            prevTime = currentTime;
+            bpm = 60 / timeDifference;
+            if(lasttaps.length>3)
+            {
+                lasttaps.shift();
+            }
+
+            lasttaps.push(bpm);
+            bpmTotal = 0;
+            lasttaps.forEach((item)=>{
+                bpmTotal = bpmTotal + item;
+            });
+            
+            if(lasttaps.length==3){
+                bpmFinal = (bpmTotal / lasttaps.length) * 1000;
+                playparallel();
+            }
+            
+
+            let result = document.querySelector('div');
+            result.innerHTML = bpmFinal.toFixed(0);
+          }
+        },
+        reset: function() {
+          prevTime = 0;
+          bpm = 0;
+          bpmTotal = 0;
+          lasttaps=[];
+          //bpmFinal = 0;
+          countClicks = 0;
+
+          let result = document.querySelector('div');
+	        result.innerHTML = bpmFinal.toFixed(0)+'-';
+        }
+      }
+
+    </script>
+  </body>
+</html>
