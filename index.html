@@ -174,10 +174,10 @@
                 }
                 else{
                     setTimeout(function(){
-                        if(silence==0){
+                        
                           srcbufferclick.start(0);
                           navigator.vibrate(200);
-                        }
+                        
                     },0)
                 }
                 
@@ -195,19 +195,13 @@
     }
 
     
-    function silentonesec(){
-      silence=1;
-      setTimeout(() => {
-        silence=0;
-      }, 1000);
-    }  
-
+    
     
       var lasttaps=[];
       let beatsPerMinute = {
         show: function() {
-          silentonesec();
-          if (prevTime === 0 || (Date.now()-prevTime) > 2200) {
+          
+          if (prevTime === 0 || (Date.now()-prevTime) > 0) {
             this.reset();
             stopplay();
             prevTime = Date.now();
