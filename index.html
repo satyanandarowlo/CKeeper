@@ -280,7 +280,7 @@
 var clicked=0;
 document.addEventListener('click',()=>{
   if(clicked==0)
-  document.documentElement.requestFullscreen();
+  document.documentElement.requestFullscreen({ navigationUI: 'hide' });
   else
   clicked=1;
 })
