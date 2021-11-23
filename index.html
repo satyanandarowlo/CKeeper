@@ -95,6 +95,9 @@
       var delay90=80;
       var delay110=6;
 
+
+      var silence=0;
+
       var pageAudioContextclick = new AudioContext();
       var pagegainNodeclick = pageAudioContextclick.createGain();
 
@@ -170,8 +173,10 @@
                 }
                 else{
                     setTimeout(function(){
-                        srcbufferclick.start(0);
-          navigator.vibrate(200);
+                        if(silence==0){
+                          srcbufferclick.start(0);
+                          navigator.vibrate(200);
+                        }
                     },0)
                 }
                 
@@ -188,7 +193,15 @@
             
     }
 
-      
+    
+    function silentonesec(){
+      silence=1;
+      setTimeout(() => {
+        silence=0;
+      }, timeout);
+    }  
+
+    
       var lasttaps=[];
       let beatsPerMinute = {
         show: function() {
@@ -213,7 +226,7 @@
                 bpmTotal = bpmTotal + item;
             });
             bpmFinal = (bpmTotal / lasttaps.length) * 1000;
-            
+
             if(lasttaps.length==3){
                 
                 playparallel();
