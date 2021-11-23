@@ -140,6 +140,9 @@
         stop=1;
     }
 
+    var lastclickedstamp=0;
+    var firstplaystamp=0;
+
     function playparallel(){
 
 
@@ -171,12 +174,20 @@
                 if(firsttime==1){
                     firsttime=0;
                     gapbpm = onebpm*delay60/100;
+                    
+                      
+                    
                 }
                 else{
                     setTimeout(function(){
-                        
+                        if(silenced==0){
+                          
                           srcbufferclick.start(0);
                           navigator.vibrate(200);
+                          // firstplaystamp=Date.now();
+                          // gapbpm = firstplaystamp - lastclickedstamp;
+                        }
+                          
                         
                     },0)
                 }
@@ -194,16 +205,25 @@
             
     }
 
+    var silenced=0;
+    var lastsilence=0;
+    function silencethis(){
+      //clearTimeout(lastsilence);
+      if(silenced==0)
+      silenced=1;
+      else
+      silenced=0;
+      
+    }
     
-    
-    
+      
       var lasttaps=[];
       let beatsPerMinute = {
         show: function() {
-          
-          if (prevTime === 0 || (Date.now()-prevTime) > 0) {
+          lastclickedstamp=Date.now();
+          //silencethis();
+          if (prevTime === 0 || (Date.now()-prevTime) > 2000) {
             this.reset();
-            stopplay();
             prevTime = Date.now();
           } else {
             
@@ -221,10 +241,10 @@
             lasttaps.forEach((item)=>{
                 bpmTotal = bpmTotal + item;
             });
-            bpmFinal = (bpmTotal / lasttaps.length) * 1000;
+            
 
             if(lasttaps.length==3){
-                
+              bpmFinal = (bpmTotal / lasttaps.length) * 1000;
                 playparallel();
             }
             
@@ -234,14 +254,17 @@
           }
         },
         reset: function() {
+          stopplay();
           prevTime = 0;
           bpm = 0;
           bpmTotal = 0;
           lasttaps=[];
           //bpmFinal = 0;
           countClicks = 0;
+          //firstplaystamp=0;
+          //lastclickedstamp=0;
 
-          stopplay();
+          
 
           let result = document.querySelector('.bpm');
 	        result.innerHTML = bpmFinal.toFixed(0)+'-';
