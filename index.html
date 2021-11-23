@@ -12,15 +12,18 @@
       body {
         margin: 0px;
         overflow: hidden;
+        touch-action: manipulation;
       }
 
-      .bpm {
-        color: rgb(49, 49, 49);
+      
+
+      .settings {
+        color:  #262626;
         font-size: 14vw;
-        height: 40vh;
-        line-height: 40vh;
+        height: 20vh;
+        line-height: 20vh;
         font-family: Arial, Helvetica, sans-serif;
-        background-image: radial-gradient(#FFFFFF, rgb(221, 220, 204));
+        background: #1a1a1a;
       }
 
       
@@ -31,8 +34,7 @@
         font-family: verdana;
         font-size: 3vw;
         letter-spacing: 0.6vw;
-        cursor: pointer;
-        color: white;
+        color: #262626;
         border: none;
       }
 
@@ -41,35 +43,34 @@
       }
 
       .tapTempo {
-        background: rgb(47, 47, 47);
-        height: 40vh;
-        line-height: 40vh;
+        background:  #000000;
+        height: 60vh;
+        line-height: 60vh;
         transition: background 0.2s;
       }
 
-      .tapTempo:active {
-        background: rgb(41, 41, 41);
-      }
+     
 
       .reset {
-        background: rgb(220, 70, 66);
+        background: #1a1a1a;
         height: 20vh;
         line-height: 20vh;
-        box-shadow: 7px 7px 50px rgb(210, 60, 56) inset;
+        
       }
 
-      .reset:active {
-        background: rgb(187, 58, 54);
-      }
+     
 
     </style>
+    
   </head>
 
   <body>
-
-    <div class="bpm">-</div>
-    <button class="button tapTempo" onclick="beatsPerMinute.show()">TAP TEMPO</button>
-    <button class="button reset" onclick="beatsPerMinute.reset()">RESET</button>
+    <div class="settings">
+      <div class="bpm">-</div>
+    </div>
+    
+    <div class="button tapTempo" onmousedown="beatsPerMinute.show()">TAP TEMPO</div>
+    <div class="button reset" onmousedown="beatsPerMinute.reset()">RESET</div>
 
     <script>
 
@@ -90,7 +91,9 @@
       var gathi=4;
       var stop=1;
       var clickvolume=3;
-      var delay=40;
+      var delay60=40;
+      var delay90=80;
+      var delay110=6;
 
       var pageAudioContextclick = new AudioContext();
       var pagegainNodeclick = pageAudioContextclick.createGain();
@@ -110,9 +113,14 @@
             getSound1.send();
         }
 
+        function preparedelays(){
+          var basicbpm=60;
+
+        }
+
         loadbuff();
 
-      function getABufferClick(){
+        function getABufferClick(){
 
         var newsrcbufferclick = pageAudioContextclick.createBufferSource();
         newsrcbufferclick.buffer = clickbuff; 
@@ -123,84 +131,64 @@
         return newsrcbufferclick;
       }
 
-function stopplay(){
-    
-    playstopped=1;
-    stop=1;
-}
-
-function playparallel(){
-
-
-    if(playstopped==0)
-        return;
-    else
-        playstopped=0;
-    //enable to play again
-    stop=0;
-
-    var onebpm=1000/(bpmFinal/60);
-     //onedivision=onebpm/gathi;
-
-    
-
-    var count=0;
-    
-    var firsttime=1;
-
-    function playloop(){
-            if(stop==1)
-            {
-                playstopped = 1;
-                return;
-            }
+    function stopplay(){
         
+        playstopped=1;
+        stop=1;
+    }
 
-            var srcbufferclick = getABufferClick();
-            var gapbpm = 0;
+    function playparallel(){
+
+
+        if(playstopped==0)
+            return;
+        else
+            playstopped=0;
+        //enable to play again
+        stop=0;
+
+        var onebpm=1000/(bpmFinal/60);
+        //onedivision=onebpm/gathi;
+
+        var count=0;
         
-            if(firsttime==1){
-                firsttime=0;
-                gapbpm = onebpm*delay/100;
-            }
-            else{
-                setTimeout(function(){
-                    srcbufferclick.start(0);
-			navigator.vibrate(200);
-                },0)
-            }
+        var firsttime=1;
+
+        function playloop(){
+                if(stop==1)
+                {
+                    playstopped = 1;
+                    return;
+                }
             
+                var srcbufferclick = getABufferClick();
+                var gapbpm = 0;
             
-            setTimeout(function(){
-                count++;
-                playloop();
+                if(firsttime==1){
+                    firsttime=0;
+                    gapbpm = onebpm*delay60/100;
+                }
+                else{
+                    setTimeout(function(){
+                        srcbufferclick.start(0);
+          navigator.vibrate(200);
+                    },0)
+                }
                 
-            },onebpm - gapbpm)
-        
-        }
-
-        playloop();
-        
-}
-
-      function playnow(bpmvalue){
-        if(clickinterval!=undefined){
-            clearInterval(clickinterval);
-        }
-
-        clickinterval = setInterval(function() {
-            let result = document.querySelector('div');
-            if(altval!="a"){
-                altval="a";
+                
+                setTimeout(function(){
+                    count++;
+                    playloop();
+                    
+                },onebpm - gapbpm)
+            
             }
-            else{
-                altval="b";
-            }
-            result.innerHTML = bpmFinal.toFixed(0)+'-'+altval;            
-        //play a sound
-        }, Math.round(60000 / bpmvalue));
-      }
 
+            playloop();
+            
+    }
+
+      
       var lasttaps=[];
       let beatsPerMinute = {
         show: function() {
@@ -231,7 +219,7 @@ function playparallel(){
             }
             
 
-            let result = document.querySelector('div');
+            let result = document.querySelector('.bpm');
             result.innerHTML = bpmFinal.toFixed(0);
           }
         },
@@ -243,10 +231,19 @@ function playparallel(){
           //bpmFinal = 0;
           countClicks = 0;
 
-          let result = document.querySelector('div');
+          stopplay();
+
+          let result = document.querySelector('.bpm');
 	        result.innerHTML = bpmFinal.toFixed(0)+'-';
         }
       }
+
+      document.addEventListener( 'dblclick', function(event) {  
+    event.preventDefault();  
+    event.stopPropagation(); 
+  },  true //capturing phase!!
+);
+
 
     </script>
   </body>
