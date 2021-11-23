@@ -212,9 +212,10 @@
             lasttaps.forEach((item)=>{
                 bpmTotal = bpmTotal + item;
             });
+            bpmFinal = (bpmTotal / lasttaps.length) * 1000;
             
             if(lasttaps.length==3){
-                bpmFinal = (bpmTotal / lasttaps.length) * 1000;
+                
                 playparallel();
             }
             
