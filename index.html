@@ -244,6 +244,14 @@
   },  true //capturing phase!!
 );
 
+var clicked=0;
+document.addEventListener('click',()=>{
+  if(clicked==0)
+  document.documentElement.requestFullscreen();
+  else
+  clicked=1;
+})
+
 
     </script>
   </body>
