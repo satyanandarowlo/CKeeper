@@ -150,7 +150,7 @@
         //enable to play again
         stop=0;
 
-        var onebpm=1000/(bpmFinal/60);
+        
         //onedivision=onebpm/gathi;
 
         var count=0;
@@ -158,6 +158,7 @@
         var firsttime=1;
 
         function playloop(){
+          var onebpm=1000/(bpmFinal/60);
                 if(stop==1)
                 {
                     playstopped = 1;
@@ -205,6 +206,7 @@
       var lasttaps=[];
       let beatsPerMinute = {
         show: function() {
+          silentonesec();
           if (prevTime === 0 || (Date.now()-prevTime) > 2200) {
             this.reset();
             stopplay();
